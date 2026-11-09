@@ -111,10 +111,52 @@
             backdrop-filter: blur(4px);
         }
 
+		/* Estilos da tela de aviso */
+		#rotate-warning {
+			display: none;
+			position: fixed;
+			top: 0; left: 0; width: 100vw; height: 100vh;
+			background-color: #1e293b;
+			color: white;
+			z-index: 9999;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			padding: 20px;
+		}
+
+		.rotate-icon {
+			font-size: 5rem;
+			animation: rotatePhone 2s infinite ease-in-out;
+		}
+
+		@keyframes rotatePhone {
+			0% { transform: rotate(0deg); }
+			50% { transform: rotate(-90deg); }
+			100% { transform: rotate(0deg); }
+		}
+
+		/* Detecta se a tela for menor que 800px E estiver na vertical (portrait) */
+		@media screen and (max-width: 800px) and (orientation: portrait) {
+			/* Esconde o jogo e o botão de voltar */
+			#game-container, a[href="index.html"] { 
+				display: none !important; 
+			}
+			/* Mostra a tela de aviso */
+			#rotate-warning {
+				display: flex;
+			}
+		}
     </style>
 </head>
 <body>
-
+	<!-- Aviso para girar a tela (Aparece apenas no celular em pé) -->
+	<div id="rotate-warning">
+		<div class="rotate-icon">📱</div>
+		<h2 style="font-family: 'Fredoka One', cursive; font-size: 2rem; margin-top: 1rem; color: #fde047;">Gire seu celular!</h2>
+		<p style="font-size: 1.2rem; margin-top: 0.5rem;">O jogo funciona melhor na horizontal.</p>
+	</div>
     <div id="game-container">
         <canvas id="gameCanvas" width="800" height="600"></canvas>
 
