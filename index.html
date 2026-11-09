@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Hot - O Melhor Cachorro-Quente!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lightpink: '#FFB6C1',
+                        hotpink: '#FF007F'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka One', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Fundo de listras verticais (inspirado na imagem) */
+        .bg-stripes {
+            background: repeating-linear-gradient(
+                to right,
+                #FF007F,
+                #FF007F 40px,
+                #FFB6C1 40px,
+                #FFB6C1 80px
+            );
+        }
+
+        /* Animação do mascote */
+        .mascot-anim {
+            transition: all 0.3s ease;
+        }
+        .mascot-anim:hover {
+            transform: scale(1.15) rotate(10deg);
+            cursor: pointer;
+        }
+        .bounce-custom {
+            animation: bounceCustom 2s infinite;
+        }
+        @keyframes bounceCustom {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Toast de notificação */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            opacity: 0;
+            transition: opacity 0.5s, visibility 0.5s, bottom 0.5s;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        /* Custom Scrollbar for Chat */
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 3px;
+        }
+        
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka One', cursive;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 antialiased overflow-x-hidden">
+
+    <!-- 1. Cabeçalho Fixo -->
+    <header class="fixed top-0 w-full z-40 bg-lightpink shadow-md px-4 py-3 flex justify-between items-center h-20 transition-all">
+        <!-- Logo -->
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+            <span class="text-3xl md:text-4xl text-black font-display tracking-wide drop-shadow-sm" style="text-shadow: 1px 1px 0px #FF007F, -1px -1px 0px #fff;">
+				<img src="img/logo/logo-bighot.svg" alt="Logo BigHot" class="w-32 md:w-48 h-auto">
+			</span>
+        </div>
+        
+        <!-- Contatos e Redes (Desktop) -->
+        <div class="hidden md:flex items-center gap-6 text-black font-semibold">
+            <div class="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-phone text-hotpink"></i>
+                <span>(21) 99999-0000</span>
+            </div>
+            <div class="flex gap-4 text-xl">
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+
+        <!-- Contatos (Mobile) -->
+        <div class="md:hidden flex gap-4 text-2xl text-black">
+            <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+    </header>
+
+    <!-- 2. Hero / Sobre -->
+    <section class="mt-20 w-full bg-white relative overflow-hidden py-16 md:py-24">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col-reverse md:flex-row items-center justify-between gap-12">
+            
+            <div class="flex-1 text-center md:text-left z-10">
+                <h1 class="text-5xl md:text-7xl mb-4 text-black drop-shadow-md">
+                    O Maior Sabor da <span class="text-hotpink">Cidade!</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto md:mx-0">
+                    Na Big Hot, não brincamos em serviço. Nossos cachorros-quentes são feitos com ingredientes selecionados, pão artesanal fresquinho e muito, mas muito recheio. Você está pronto para essa explosão de sabor?
+                </p>
+                <button onclick="document.getElementById('menu').scrollIntoView({behavior: 'smooth'})" class="bg-hotpink text-white font-bold text-xl px-8 py-4 rounded-full shadow-lg hover:bg-pink-700 hover:shadow-xl transition transform hover:-translate-y-1">
+                    Ver Cardápio <i class="fa-solid fa-arrow-down ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Mascote -->
+            <div class="flex-1 flex justify-center z-10 relative">
+                <!-- Fundo circular escuro do mascote inspirado na imagem -->
+                <div class="bg-black w-69 h-69 md:w-80 md:h-80 rounded-full flex items-center justify-center shadow-2xl relative">
+                    <!-- Usando emojis/icones combinados como mascote devido à restrição de imagens locais, focado no tema -->
+                    <div class="mascot-anim bounce-custom text-8xl md:text-9xl text-center leading-none select-none">
+                        <img src="img/porkhot/porkhothalf.svg" alt="Mascote da Big Hot">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 3. Cardápio -->
+    <section id="menu" class="bg-stripes py-16 md:py-24 border-y-8 border-black">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-12 bg-white/90 p-4 rounded-2xl shadow-md inline-block relative left-1/2 -translate-x-1/2">
+                <h2 class="text-4xl text-black font-display">Nosso Cardápio</h2>
+                <p class="text-hotpink font-bold mt-2">Escolha o seu tamanho da fome!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 border-4 border-transparent hover:border-lightpink">
+                    <img src="https://placehold.co/600x400/FFB6C1/000000?text=Hot+Dog+Tradicional" alt="Hot Dog Tradicional" class="w-full h-48 object-cover">
+                    <div class="p-6 flex flex-col flex-1 text-center">
+                        <h3 class="text-2xl mb-2">Tradicional</h3>
+                        <p class="text-gray-600 mb-4 flex-1 text-sm">Pão macio, 1 salsicha premium, molho especial da casa, milho, ervilha, queijo ralado e muita batata palha crocante.</p>
+                        <div class="text-3xl font-display text-hotpink mb-4">R$ 15,00</div>
+                        <button onclick="addToCart('Tradicional', 15.00)" class="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition shadow-md">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 border-4 border-transparent hover:border-hotpink relative">
+                    <div class="absolute top-0 right-0 bg-hotpink text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">MAIS VENDIDO</div>
+                    <img src="https://placehold.co/600x400/FF007F/FFFFFF?text=Hot+Dog+Duplo" alt="Hot Dog Duplo" class="w-full h-48 object-cover">
+                    <div class="p-6 flex flex-col flex-1 text-center">
+                        <h3 class="text-2xl mb-2">Duplo Especial</h3>
+                        <p class="text-gray-600 mb-4 flex-1 text-sm">Para fomes médias. Pão macio, 2 salsichas premium, creme de cheddar, bacon crocante em cubos e batata palha.</p>
+                        <div class="text-3xl font-display text-hotpink mb-4">R$ 22,00</div>
+                        <button onclick="addToCart('Duplo Especial', 22.00)" class="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition shadow-md">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 border-4 border-transparent hover:border-lightpink">
+                    <img src="https://placehold.co/600x400/000000/FFB6C1?text=MONSTRO+Big+Hot" alt="O Monstro Big Hot" class="w-full h-48 object-cover">
+                    <div class="p-6 flex flex-col flex-1 text-center">
+                        <h3 class="text-2xl mb-2">O Monstro (Big Hot)</h3>
+                        <p class="text-gray-600 mb-4 flex-1 text-sm">Desafio aceito? Pão de 30cm, 3 salsichas, chilli com carne, mix de queijos derretidos, bacon, ovo de codorna e batata palha.</p>
+                        <div class="text-3xl font-display text-hotpink mb-4">R$ 35,00</div>
+                        <button onclick="addToCart('O Monstro Big Hot', 35.00)" class="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition shadow-md">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Mapa (Tijuca, Rio de Janeiro) -->
+    <section class="bg-white py-12 border-b-8 border-lightpink">
+        <div class="max-w-6xl mx-auto px-6 text-center mb-8">
+            <h2 class="text-3xl text-black font-display mb-2">Onde Estamos</h2>
+            <p class="text-gray-600">Venha nos visitar!!</p>
+        </div>
+        <div class="w-full h-96">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14558.644997096728!2d-76.46671019701881!3d24.18361025259095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x892e29e27574f9f1%3A0x705b4b468c26ed69!2sPig%20Beach!5e0!3m2!1spt-BR!2sbr!4v1794190271656!5m2!1spt-BR!2sbr" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </section>
+
+    <!-- 5. Rodapé -->
+    <footer class="bg-black text-white py-12">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="text-2xl text-lightpink mb-4">Big Hot</h3>
+                <p class="text-gray-400 text-sm">O melhor cachorro-quente do Rio de Janeiro. Ingredientes frescos e atendimento de primeira.</p>
+            </div>
+            <div>
+                <h4 class="text-xl mb-4">Horário de Funcionamento</h4>
+                <p class="text-gray-400 text-sm">Terça a Domingo: 18h às 02h<br>Segunda: Fechado para balanço (e dieta).</p>
+            </div>
+            <div>
+                <h4 class="text-xl mb-4">Links Úteis</h4>
+                <ul class="text-gray-400 text-sm space-y-2">
+                    <li><a href="#" class="hover:text-lightpink transition">Trabalhe Conosco</a></li>
+                    <li><a href="#" class="hover:text-lightpink transition">Política de Privacidade</a></li>
+                    <li><a href="#" class="hover:text-lightpink transition">Fale com a Gerência</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-800">
+            &copy; 2026 Big Hot Lanchonete. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- Toast Notification (Substitui o Alert) -->
+    <div id="toast">Produto adicionado ao carrinho! 🌭</div>
+
+    <!-- 6. Chatbot -->
+    <!-- Botão Flutuante -->
+    <button id="chatbot-toggle" class="fixed bottom-6 right-6 w-16 h-16 bg-hotpink text-white rounded-full shadow-[0_5px_15px_rgba(255,0,127,0.4)] flex items-center justify-center text-2xl z-50 hover:scale-110 hover:bg-pink-600 transition-transform duration-300">
+        <i class="fa-solid fa-comment-dots"></i>
+        <!-- Notificação de bolinha no chat -->
+        <span class="absolute top-0 right-0 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse"></span>
+    </button>
+
+    <!-- Janela de Chat -->
+    <div id="chatbot-window" class="fixed bottom-28 right-6 w-[340px] max-w-[90vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col hidden overflow-hidden border-2 border-lightpink origin-bottom-right transition-all">
+        <!-- Header do Chat -->
+        <div class="bg-lightpink p-4 flex items-center justify-between text-black">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-2xl shadow-inner">
+                    <img src="img/chatpork.jpg" alt="Mascote da Big Hot">
+                </div>
+                <div>
+                    <h4 class="font-bold leading-tight">ChatPork</h4>
+                    <p class="text-xs text-gray-700">Atendente Virtual da Big Hot</p>
+                </div>
+            </div>
+            <button id="chatbot-close" class="text-black hover:text-hotpink transition text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <!-- Área de Mensagens -->
+        <div id="chat-messages" class="flex-1 p-4 bg-gray-50 h-80 overflow-y-auto chat-scroll flex flex-col gap-3">
+            <!-- Mensagem Inicial do Bot -->
+            <div class="flex gap-2 items-end">
+                <div class="w-8 h-8 rounded-full bg-lightpink flex-shrink-0 flex items-center justify-center text-lg shadow-sm">🐷</div>
+                <div class="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm text-sm border border-gray-100 text-gray-800">
+                    Oinc! Olá! Sou o Pig da Silva, o atendente da BigHot. Bateu vontade de uma Linguiça? Me fale qual você deseja no nosso cardápio! 🌭
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 bg-white border-t border-gray-100 flex gap-2">
+            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lightpink">
+            <button id="chat-send" class="w-10 h-10 bg-hotpink text-white rounded-full flex items-center justify-center hover:bg-pink-600 transition shadow-md">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts da Página -->
+    <script>
+        /* Funcionalidade do Carrinho (Substituindo o Alert por Toast) */
+        function addToCart(nome, preco) {
+            const toast = document.getElementById("toast");
+            toast.innerText = `${nome} adicionado ao carrinho! 🌭`;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        /* Lógica do Chatbot com Gemini API */
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Toggle visibility
+        chatbotToggle.addEventListener('click', () => {
+            chatbotWindow.classList.toggle('hidden');
+            if(!chatbotWindow.classList.contains('hidden')) {
+                chatInput.focus();
+            }
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.classList.add('hidden');
+        });
+
+        // Histórico de Conversa para Contexto do Gemini
+        let chatHistory = [];
+
+        // Chave e URL da API
+        const apiKey = ""; // Será injetada dinamicamente pelo ambiente
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        // Sistema de Instrução para a API (Persona do Bot)
+        const systemInstruction = `Você é o "Chefinho", um simpático e divertido porco cozinheiro que trabalha como atendente virtual na lanchonete 'Big Hot', no Rio de Janeiro (Tijuca). 
+        Seu tom é amigável, faminto e você usa trocadilhos com porcos (como 'Oinc!') e emojis relacionados a comida.
+        Informações importantes:
+        - A lanchonete vende apenas cachorros-quentes e é conhecida por seu tamanho generoso e fundo de listras rosas.
+        - Cardápio atual:
+          1. Tradicional: Pão, 1 salsicha premium, milho, ervilha, batata palha, molho e queijo. R$ 15,00.
+          2. Duplo Especial (Mais Vendido): 2 salsichas, cheddar, bacon e batata palha. R$ 22,00.
+          3. O Monstro (Big Hot): Pão 30cm, 3 salsichas, chilli, queijo, bacon, ovo. R$ 35,00.
+        - Endereço: Tijuca, Rio de Janeiro.
+        - Horário: Terça a Dom (18h às 02h). Seg (Fechado).
+        Responda as perguntas dos clientes de forma concisa (máximo 3 frases longas) e guie-os a pedir através do site.`;
+
+        // Função para adicionar mensagem na interface
+        function appendMessage(text, isUser = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-2 items-end ${isUser ? 'flex-row-reverse' : ''}`;
+            
+            let avatar = '';
+            if(!isUser) {
+                avatar = `<div class="w-8 h-8 rounded-full bg-lightpink flex-shrink-0 flex items-center justify-center text-lg shadow-sm">🐷</div>`;
+            }
+
+            const bubbleClass = isUser 
+                ? 'bg-hotpink text-white rounded-2xl rounded-br-none shadow-sm'
+                : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-none shadow-sm';
+
+            msgDiv.innerHTML = `
+                ${avatar}
+                <div class="p-3 text-sm max-w-[80%] ${bubbleClass}">
+                    ${text}
+                </div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+        }
+
+        // Função para mostrar indicador de digitação (Loading)
+        function showTypingIndicator() {
+            const msgDiv = document.createElement('div');
+            msgDiv.id = 'typing-indicator';
+            msgDiv.className = `flex gap-2 items-end`;
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-lightpink flex-shrink-0 flex items-center justify-center text-lg shadow-sm">🐷</div>
+                <div class="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 flex gap-1">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                </div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if(indicator) indicator.remove();
+        }
+
+        // Função principal para enviar mensagem à API
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Limpa input
+            chatInput.value = '';
+            
+            // Renderiza mensagem do usuário
+            appendMessage(text, true);
+
+            // Adiciona ao histórico (formato do Gemini)
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+
+            // Mostra loading
+            showTypingIndicator();
+
+            try {
+                const payload = {
+                    contents: chatHistory,
+                    systemInstruction: {
+                        parts: [{ text: systemInstruction }]
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                removeTypingIndicator();
+
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
+                    const botResponse = result.candidates[0].content.parts[0].text;
+                    // Renderiza resposta
+                    appendMessage(botResponse, false);
+                    // Atualiza histórico com a resposta do modelo
+                    chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                } else {
+                    appendMessage("Oinc! Algo deu errado na cozinha. Tente novamente mais tarde!", false);
+                }
+
+            } catch (error) {
+                console.error("Erro na API:", error);
+                removeTypingIndicator();
+                appendMessage("Oinc! Tivemos um problema de conexão com a matriz. Volto logo!", false);
+            }
+        }
+
+        // Listeners
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+
+<!--
+
+LOGO
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+            <i class="fa-solid fa-fire text-hotpink text-2xl md:text-3xl"></i>
+            <span class="text-3xl md:text-4xl text-black font-display tracking-wide drop-shadow-sm" style="text-shadow: 1px 1px 0px #FF007F, -1px -1px 0px #fff;">Big Hot</span>
+        </div>
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14558.644997096728!2d-76.46671019701881!3d24.18361025259095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x892e29e27574f9f1%3A0x705b4b468c26ed69!2sPig%20Beach!5e0!3m2!1spt-BR!2sbr!4v1794190271656!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+-->

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hot Dog Flyer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka One', cursive;
+            margin: 0;
+            padding: 0;
+            background-color: #1e293b; /* slate-800 */
+            overflow: hidden;
+            touch-action: none; /* Prevent scroll on touch */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 600px;
+            background-color: #FFB6C1; /* Updated to light pink sky color */
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        @media (min-width: 800px) {
+            #game-container {
+                border-radius: 1rem;
+                height: 80vh;
+            }
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through to canvas */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .btn {
+            background: linear-gradient(to bottom, #fde047, #eab308);
+            border: 4px solid #ca8a04;
+            color: #713f12;
+            padding: 12px 32px;
+            border-radius: 9999px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 -4px 0 rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px rgba(0,0,0,0.1), inset 0 -4px 0 rgba(0,0,0,0.1);
+        }
+
+        .title-text {
+            font-size: 4rem;
+            color: #ef4444;
+            text-shadow: 3px 3px 0 #991b1b, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white;
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.1;
+        }
+        
+        .score-display {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 3rem;
+            color: white;
+            text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+            z-index: 10;
+        }
+
+        #game-over-screen {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- Current Score Display -->
+        <div id="current-score" class="score-display hidden">0</div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="ui-layer interactive">
+            <h1 class="title-text">PIG HOT<br>FLYER 🌭</h1>
+            <p class="text-white text-xl mb-6 font-bold bg-black/30 px-4 py-2 rounded-lg backdrop-blur-sm">Consiga 300 pontos e ganhe <br> uma linguiça BigHot!</p>
+            <button id="start-btn" class="btn">PLAY NOW</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="ui-layer interactive hidden">
+            <h2 class="text-6xl text-red-500 mb-2 drop-shadow-lg" style="text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 4px 4px 0 #991b1b;">GRILLED!</h2>
+            <div class="bg-white/90 p-6 rounded-2xl border-4 border-slate-800 shadow-2xl flex flex-col items-center mb-6 text-slate-800">
+                <p class="text-2xl mb-1">SCORE</p>
+                <p id="final-score" class="text-5xl text-blue-600 mb-4">0</p>
+                <p class="text-lg text-slate-500">BEST: <span id="best-score">0</span></p>
+            </div>
+            <button id="restart-btn" class="btn">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+		const imgPlayer = new Image();
+		// Troque 'seu-arquivo.svg' pelo nome exato do arquivo que você tem
+		imgPlayer.src = 'img/flyingpig.svg';
+        
+        // UI Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const currentScoreEl = document.getElementById('current-score');
+        const finalScoreEl = document.getElementById('final-score');
+        const bestScoreEl = document.getElementById('best-score');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Game State
+        let gameState = 'START'; // START, PLAYING, GAMEOVER
+        let score = 0;
+        let bestScore = localStorage.getItem('hotdogBestScore') || 0;
+        let frames = 0;
+        let animationId;
+
+        // Constants
+        const GRAVITY = 0.6; // Diminua para cair mais devagar diminua o valor ou aumente para cair mais rápido
+        const JUMP = -8; // Se diminuir a gravidade, diminua o pulo também (ex: -5)
+        const BASE_PIPE_SPEED = 4; //velocidade dos obstaculos passando
+        let currentPipeSpeed = BASE_PIPE_SPEED;
+        const PIPE_WIDTH = 80;
+        const PIPE_GAP = 250; //aumentas a distancia entre um bstão superior e inferior
+        const HOTDOG_SIZE = 50; 
+        const MOUTH_SIZE = 70;
+
+        bestScoreEl.innerText = bestScore;
+
+        // --- Game Entities ---
+
+        const hotdog = {
+            x: 150,
+            y: 300,
+            width: 100, //largura do personagem
+            height: 90, //altura do personagem
+            velocity: 0,
+            rotation: 0,
+
+            draw: function() {
+                ctx.save();
+                // Move o eixo do Canvas para o centro do personagem
+                ctx.translate(this.x, this.y);
+                
+                // Rotaciona baseado na velocidade da queda/pulo
+                this.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.velocity * 0.1)));
+                ctx.rotate(this.rotation);
+                
+                // Desenha a imagem centralizada. 
+                // Usamos 'this.width' e 'this.height' em vez de 'player'
+                ctx.drawImage(imgPlayer, -this.width / 2, -this.height / 2, this.width, this.height);
+                
+                ctx.restore();
+            },
+			
+
+            update: function() {
+                this.velocity += GRAVITY;
+                this.y += this.velocity;
+
+                // Floor collision
+                if (this.y + this.height / 2 >= canvas.height) {
+                    this.y = canvas.height - this.height / 2;
+                    gameOver();
+                }
+                
+                // Ceiling collision
+                if (this.y - this.height / 2 <= 0) {
+                    this.y = this.height / 2;
+                    this.velocity = 0;
+                }
+            },
+            
+            flap: function() {
+                this.velocity = JUMP;
+                // Add a small particle burst effect here if desired
+            }
+        };
+
+        const pipes = [];
+
+        class Pipe {
+            constructor() {
+                // Determine top pipe height
+                const minHeight = 50;
+                const maxHeight = canvas.height - PIPE_GAP - minHeight;
+                this.topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+                
+                this.x = canvas.width;
+                this.width = PIPE_WIDTH;
+                this.passed = false;
+            }
+
+            draw() {
+                // Colors for the "Grill"
+                const brickColor = '#991b1b'; // red-800
+                const outlineColor = '#450a0a'; // red-950
+
+                // Top Pipe (Grill)
+                ctx.fillStyle = brickColor;
+                ctx.strokeStyle = outlineColor;
+                ctx.lineWidth = 4;
+                ctx.fillRect(this.x, 0, this.width, this.topHeight);
+                ctx.strokeRect(this.x, -5, this.width, this.topHeight + 5);
+
+                // Bottom Pipe (Grill)
+                const bottomY = this.topHeight + PIPE_GAP;
+                const bottomHeight = canvas.height - bottomY;
+                ctx.fillStyle = brickColor;
+                ctx.fillRect(this.x, bottomY, this.width, bottomHeight);
+                ctx.strokeRect(this.x, bottomY, this.width, bottomHeight + 5);
+
+                // Draw Grill Grates
+                ctx.strokeStyle = '#94a3b8'; // slate-400
+                ctx.lineWidth = 3;
+                
+                // Top Grate
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.topHeight);
+                ctx.lineTo(this.x + this.width, this.topHeight);
+                for(let i = 10; i < this.width; i+= 20) {
+                     ctx.moveTo(this.x + i, this.topHeight);
+                     ctx.lineTo(this.x + i, this.topHeight - 20);
+                }
+                ctx.stroke();
+
+                // Bottom Grate
+                ctx.beginPath();
+                ctx.moveTo(this.x, bottomY);
+                ctx.lineTo(this.x + this.width, bottomY);
+                for(let i = 10; i < this.width; i+= 20) {
+                     ctx.moveTo(this.x + i, bottomY);
+                     ctx.lineTo(this.x + i, bottomY + 20);
+                }
+                ctx.stroke();
+
+                // Draw Fire at the edges instead of Mouths
+                ctx.font = `${MOUTH_SIZE - 20}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Top Fire
+                ctx.fillText('🔥', this.x + this.width / 2, this.topHeight - 15);
+                
+                // Bottom Fire
+                ctx.fillText('🔥', this.x + this.width / 2, bottomY + 15);
+            }
+
+            update() {
+                this.x -= currentPipeSpeed;
+
+                // Collision Detection logic (AABB)
+                // Hitbox for hotdog (slightly smaller than emoji for forgiving gameplay)
+                const hx = hotdog.x - hotdog.width / 2 + 10;
+                const hy = hotdog.y - hotdog.height / 2 + 5;
+                const hw = hotdog.width - 20;
+                const hh = hotdog.height - 10;
+
+                // Check Top Pipe Collision
+                if (hx < this.x + this.width &&
+                    hx + hw > this.x &&
+                    hy < this.topHeight) {
+                    gameOver();
+                }
+
+                // Check Bottom Pipe Collision
+                if (hx < this.x + this.width &&
+                    hx + hw > this.x &&
+                    hy + hh > this.topHeight + PIPE_GAP) {
+                    gameOver();
+                }
+
+                // Scoring
+                if (!this.passed && this.x + this.width < hotdog.x - hotdog.width/2) {
+                    score++;
+                    currentScoreEl.innerText = score;
+                    this.passed = true;
+
+                    // Increase speed slightly every 30 points
+                    if (score > 0 && score % 20 === 0) {
+                        currentPipeSpeed += 1;
+                    }
+                }
+            }
+        }
+
+        // --- Background Clouds ---
+        const clouds = [];
+        for(let i=0; i<5; i++) {
+            clouds.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * (canvas.height / 2),
+                size: Math.random() * 30 + 40,
+                speed: Math.random() * 1 + 0.5
+            });
+        }
+
+        function drawBackground() {
+            // Draw Sky is handled by CSS, but let's draw some clouds
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            clouds.forEach(cloud => {
+                ctx.font = `${cloud.size}px Arial`;
+                ctx.fillText('☁️', cloud.x, cloud.y);
+                if (gameState === 'PLAYING') {
+                    cloud.x -= cloud.speed;
+                }
+                if (cloud.x + cloud.size < 0) {
+                    cloud.x = canvas.width + cloud.size;
+                    cloud.y = Math.random() * (canvas.height / 2);
+                }
+            });
+        }
+
+        // --- Game Functions ---
+
+        function initGame() {
+            hotdog.y = canvas.height / 2;
+            hotdog.velocity = 0;
+            pipes.length = 0;
+            score = 0;
+            frames = 0;
+            currentPipeSpeed = BASE_PIPE_SPEED;
+            currentScoreEl.innerText = score;
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            currentScoreEl.classList.remove('hidden');
+            
+            gameState = 'PLAYING';
+            hotdog.flap();
+        }
+
+        function gameOver() {
+            if (gameState === 'GAMEOVER') return;
+            gameState = 'GAMEOVER';
+            
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('hotdogBestScore', bestScore);
+            }
+            
+            finalScoreEl.innerText = score;
+            bestScoreEl.innerText = bestScore;
+            
+            currentScoreEl.classList.add('hidden');
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        function drawStartScreenBackground() {
+            drawBackground();
+            hotdog.y = canvas.height / 2 + Math.sin(Date.now() / 200) * 20; // Hover effect
+            hotdog.rotation = 0;
+            hotdog.draw();
+        }
+
+        function loop() {
+            drawBackground();
+
+            if (gameState === 'PLAYING') {
+                hotdog.update();
+                hotdog.draw();
+
+                // Generate Pipes
+				const distanciaEntreObstaculos = 360; // 360 era a distância original do jogo. Aumente para afastar mais.
+
+				// Cria um obstáculo se não houver nenhum, ou se o último criado já andou a distância necessária
+				if (pipes.length === 0 || (canvas.width - pipes[pipes.length - 1].x) >= distanciaEntreObstaculos) {
+				pipes.push(new Pipe());
+}
+
+                // Update & Draw Pipes
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    pipes[i].draw();
+                    pipes[i].update();
+
+                    // Remove off-screen pipes
+                    if (pipes[i].x + pipes[i].width < 0) {
+                        pipes.splice(i, 1);
+                    }
+                }
+                
+                frames++;
+                
+            } else if (gameState === 'GAMEOVER') {
+                // Render last frame static state
+                pipes.forEach(p => p.draw());
+                
+                // Make hotdog fall off screen
+                if(hotdog.y < canvas.height + HOTDOG_SIZE) {
+                     hotdog.velocity += GRAVITY;
+                     hotdog.y += hotdog.velocity;
+                     hotdog.rotation += 0.1;
+                }
+                hotdog.draw();
+                
+            } else if (gameState === 'START') {
+                drawStartScreenBackground();
+            }
+
+            animationId = requestAnimationFrame(loop);
+        }
+
+        // --- Controls ---
+        function handleInput(e) {
+            // Prevent default behavior for spacebar and touch to avoid scrolling
+            if(e.type === 'keydown' && e.code !== 'Space') return;
+            if(e.type === 'keydown') e.preventDefault();
+            
+            // Do not trigger if clicking buttons
+            if(e.target.tagName.toLowerCase() === 'button') return;
+
+            if (gameState === 'PLAYING') {
+                hotdog.flap();
+            } else if (gameState === 'START') {
+                initGame();
+            }
+        }
+
+        // Event Listeners
+        window.addEventListener('keydown', handleInput);
+        canvas.addEventListener('mousedown', handleInput);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevents double firing with mouse events on mobile
+            handleInput(e);
+        }, {passive: false});
+
+        startBtn.addEventListener('click', initGame);
+        restartBtn.addEventListener('click', initGame);
+
+        // Resize Canvas internally to maintain aspect ratio logic, visually scaled via CSS
+        function resizeCanvas() {
+            // The canvas logical size stays 800x600.
+            // CSS handles scaling it to fit the screen.
+            // This ensures consistent game physics across devices.
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Start game loop
+        loop();
+
+    </script>
+</body>
+</html>
