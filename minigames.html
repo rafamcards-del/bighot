@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Big Hot - Minigames</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lightpink: '#FFB6C1',
+                        hotpink: '#FF007F'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka One', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Fundo de listras verticais (inspirado na imagem) */
+        .bg-stripes {
+            background: repeating-linear-gradient(
+                to right,
+                #FF007F,
+                #FF007F 40px,
+                #FFB6C1 40px,
+                #FFB6C1 80px
+            );
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka One', cursive;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
+
+    <!-- Cabeçalho Fixo -->
+    <header class="fixed top-0 w-full z-40 bg-lightpink shadow-md px-4 py-3 flex justify-between items-center h-20 transition-all">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition">
+            <span class="text-3xl md:text-4xl text-black font-display tracking-wide drop-shadow-sm" style="text-shadow: 1px 1px 0px #FF007F, -1px -1px 0px #fff;">
+				<img src="img/logo/logo-bighot.svg" alt="Logo BigHot" class="w-32 md:w-48 h-auto">
+			</span>
+        </a>
+        
+        <!-- Contatos e Redes (Desktop) -->
+        <div class="hidden md:flex items-center gap-6 text-black font-semibold">
+            <div class="flex gap-4 text-xl">
+                <!-- Botão para voltar ao cardápio -->
+                <a href="index.html" class="bg-hotpink text-white px-4 py-2 rounded-full text-sm font-bold shadow-md hover:bg-pink-600 transition">
+                    Ver Cardápio 🌭
+                </a>
+            </div>
+            <div class="flex gap-4 text-xl">
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+
+        <!-- Contatos (Mobile) -->
+        <div class="md:hidden flex items-center gap-4 text-2xl text-black">
+            <a href="index.html" class="text-sm font-bold bg-hotpink text-white px-3 py-1 rounded-full shadow-md">Voltar</a>
+            <a href="#" class="hover:text-hotpink transition"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+    </header>
+
+    <!-- Área Principal de Minigames -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 pt-32 pb-16 w-full">
+        
+        <!-- Título da Seção -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl md:text-6xl text-hotpink font-display drop-shadow-sm mb-4">Arcade Big Hot 🎮</h1>
+            <p class="text-gray-600 text-lg md:text-xl">Escolha um jogo e tente bater o recorde da semana enquanto a fome não passa!</p>
+        </div>
+
+        <!-- Grid de Jogos (4 partes) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <!-- Minigame 1: Pig Hot Flyer -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-pink-100 hover:border-hotpink transition-all transform hover:-translate-y-2 flex flex-col">
+                <div class="h-48 w-full overflow-hidden">
+					<img src="img/flyingpig.svg" alt="Capa Pig Hot Flyer" class="w-full h-full object-cover">
+				</div>
+                <div class="p-6 text-center flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold font-display text-gray-800 mb-2">Pig Hot Flyer</h3>
+                        <p class="text-gray-600 text-sm mb-6">Desvie das churrasqueiras voadoras. Consiga 300 pontos e tente ganhar um prêmio!</p>
+                    </div>
+                    <!-- Substitua 'jogo-voador.html' pelo nome real do seu arquivo do jogo do porco -->
+                    <a href="hot-dog-flyer.html" class="block w-full bg-hotpink text-white font-bold py-3 rounded-full hover:bg-pink-600 shadow-md transition transform hover:scale-105">
+                        Jogar Agora
+                    </a>
+                </div>
+            </div>
+
+            <!-- Minigame 2 (Genérico) -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-pink-100 hover:border-hotpink transition-all transform hover:-translate-y-2 flex flex-col">
+                <div class="h-48 bg-gradient-to-b from-yellow-300 to-yellow-100 flex items-center justify-center text-6xl opacity-50">
+                    🌭🧩
+                </div>
+                <div class="p-6 text-center flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold font-display text-gray-800 mb-2">Jogo 2</h3>
+                        <p class="text-gray-600 text-sm mb-6">Descrição curta do seu próximo jogo incrível virá exatamente aqui.</p>
+                    </div>
+                    <button disabled class="block w-full bg-gray-200 text-gray-500 font-bold py-3 rounded-full cursor-not-allowed">
+                        Em breve...
+                    </button>
+                </div>
+            </div>
+
+            <!-- Minigame 3 (Genérico) -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-pink-100 hover:border-hotpink transition-all transform hover:-translate-y-2 flex flex-col">
+                <div class="h-48 bg-gradient-to-b from-green-300 to-green-100 flex items-center justify-center text-6xl opacity-50">
+                    🍟🎯
+                </div>
+                <div class="p-6 text-center flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold font-display text-gray-800 mb-2">Jogo 3</h3>
+                        <p class="text-gray-600 text-sm mb-6">Descrição curta do seu próximo jogo incrível virá exatamente aqui.</p>
+                    </div>
+                    <button disabled class="block w-full bg-gray-200 text-gray-500 font-bold py-3 rounded-full cursor-not-allowed">
+                        Em breve...
+                    </button>
+                </div>
+            </div>
+
+            <!-- Minigame 4 (Genérico) -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-pink-100 hover:border-hotpink transition-all transform hover:-translate-y-2 flex flex-col">
+                <div class="h-48 bg-gradient-to-b from-purple-300 to-purple-100 flex items-center justify-center text-6xl opacity-50">
+                    🥤🕹️
+                </div>
+                <div class="p-6 text-center flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold font-display text-gray-800 mb-2">Jogo 4</h3>
+                        <p class="text-gray-600 text-sm mb-6">Descrição curta do seu próximo jogo incrível virá exatamente aqui.</p>
+                    </div>
+                    <button disabled class="block w-full bg-gray-200 text-gray-500 font-bold py-3 rounded-full cursor-not-allowed">
+                        Em breve...
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-black text-white py-12 w-full mt-auto">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="text-2xl text-lightpink mb-4">Big Hot</h3>
+                <p class="text-gray-400 text-sm">O melhor cachorro-quente do Rio de Janeiro. Ingredientes frescos e atendimento de primeira.</p>
+            </div>
+            <div>
+                <h4 class="text-xl mb-4">Horário de Funcionamento</h4>
+                <p class="text-gray-400 text-sm">Terça a Domingo: 18h às 02h<br>Segunda: Fechado para balanço (e dieta).</p>
+            </div>
+            <div>
+                <h4 class="text-xl mb-4">Links Úteis</h4>
+                <ul class="text-gray-400 text-sm space-y-2">
+                    <li><a href="index.html" class="hover:text-lightpink transition">Fazer Pedido (Cardápio)</a></li>
+                    <li><a href="#" class="hover:text-lightpink transition">Política de Privacidade</a></li>
+                    <li><a href="#" class="hover:text-lightpink transition">Fale com a Gerência</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-500 text-sm mt-12 pt-8 border-t border-gray-800">
+            &copy; 2026 Big Hot Lanchonete. Todos os direitos reservados.
+        </div>
+    </footer>
+
+</body>
+</html>
