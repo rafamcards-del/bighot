@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Emoji Tapper Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #111;
+            --text-color: #0ff;
+            --counter-color: #8B4513;
+            --accent: #ff00ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: var(--text-color);
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 4/3;
+            background-color: var(--bg-color);
+            background-image: url('img/cozinha.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 var(--accent);
+            font-size: 14px;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .overlay h1 {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            font-size: 24px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .overlay p {
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            max-width: 80%;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--text-color);
+            padding: 15px 30px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px var(--text-color) inset, 0 0 10px var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .btn:hover, .btn:active {
+            background: var(--text-color);
+            color: #000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #mobile-controls {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            padding: 10px;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .d-pad, .action-pad {
+            display: flex;
+            gap: 10px;
+        }
+
+        .d-pad { flex-direction: column; }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            border-radius: 10px;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px var(--text-color);
+        }
+
+        .control-btn:active {
+            background: rgba(0, 255, 255, 0.3);
+        }
+
+        #btn-throw {
+            width: 80px;
+            height: 80px;
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            border-radius: 50%;
+        }
+
+        #btn-throw:active {
+            background: rgba(255, 0, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: flex;
+            }
+            #game-wrapper {
+                border-width: 2px;
+                border-radius: 5px;
+            }
+            .overlay h1 { font-size: 18px; }
+            .overlay p { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <div id="ui-layer">
+            <div>SCORE: <span id="score">0</span></div>
+            <div>LIVES: <span id="lives">❤️❤️❤️</span></div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <h1>TAPPER EMOJI<br>ARCADE</h1>
+            <p>
+                Use as setas CIMA/BAIXO para mover.<br><br>
+                Aperte ESPAÇO para servir cachorro quente.<br><br>
+                Não deixe os clientes chegarem no balcão e não desperdice comida!
+            </p>
+            <button class="btn" id="start-btn">INICIAR JOGO</button>
+            <a href="minigames.html" class="btn" id="start-back-btn" style="margin-top: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center;">VOLTAR</a>
+        </div>
+
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 style="color: red; text-shadow: 0 0 10px red;">GAME OVER</h1>
+            <p>Sua pontuação final:<br><br><span id="final-score" style="font-size: 20px; color: #fff;">0</span></p>
+            <button class="btn" id="restart-btn">JOGAR NOVAMENTE</button>
+            <a href="minigames.html" class="btn" id="back-btn" style="margin-top: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center;">VOLTAR</a>
+        </div>
+    </div>
+
+    <div id="mobile-controls">
+        <div class="d-pad">
+            <button class="control-btn" id="btn-up">⬆️</button>
+            <button class="control-btn" id="btn-down">⬇️</button>
+        </div>
+        <div class="action-pad">
+            <button class="control-btn" id="btn-throw">🌭</button>
+        </div>
+    </div>
+
+    <script>
+        // Aguarda todo o HTML carregar antes de iniciar o script
+window.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const startScreen = document.getElementById('start-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const startBtn = document.getElementById('start-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const finalScoreEl = document.getElementById('final-score');
+
+    const GAME_WIDTH = 800;
+    const GAME_HEIGHT = 600;
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+    
+    const EMOJI_SIZE = 110;
+    const LANES = [180, 310, 440, 570];
+    const BAR_START_X = 100;
+    const BAR_END_X = 700;
+
+    const assets = {
+        chef: { img: new Image(), src: 'img/porkhothalf2.svg', fallback: '👨‍🍳' },
+        hotdog: { img: new Image(), src: 'img/hotdog.svg', fallback: '🌭' },
+        trevo: { img: new Image(), src: 'img/bobpighigh.svg', fallback: '🍀' },
+        porco: { img: new Image(), src: 'img/fathalfpig.svg', fallback: '🐷' },
+        
+        clientes: [
+            { img: new Image(), src: 'img/porcosadochicotehalf.svg', fallback: '👨' },
+            { img: new Image(), src: 'img/srpig.svg', fallback: '👽' },
+            { img: new Image(), src: 'img/srapig.svg', fallback: '🧟' },
+            { img: new Image(), src: 'img/buttpork.svg', fallback: '🧟' }
+        ]
+    };
+
+    for (let key in assets) {
+        if (Array.isArray(assets[key])) {
+            assets[key].forEach(item => item.img.src = item.src);
+        } else {
+            assets[key].img.src = assets[key].src;
+        }
+    }
+
+    let state = {
+        status: 'MENU',
+        score: 0,
+        lives: 3,
+        playerLane: 0,
+        beers: [],
+        customers: [],
+        lastTime: 0,
+        spawnTimer: 0,
+        spawnInterval: 2500,
+        baseCustomerSpeed: 50,
+        cooldown: 0
+    };
+
+    const keys = {
+        ArrowUp: false,
+        ArrowDown: false,
+        Space: false
+    };
+
+    function initEvents() {
+        window.addEventListener('keydown', (e) => {
+            if(e.code === 'ArrowUp') keys.ArrowUp = true;
+            if(e.code === 'ArrowDown') keys.ArrowDown = true;
+            if(e.code === 'Space') {
+                keys.Space = true;
+                if(state.status === 'PLAYING') e.preventDefault();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if(e.code === 'ArrowUp') { keys.ArrowUp = false; handleMove('up'); }
+            if(e.code === 'ArrowDown') { keys.ArrowDown = false; handleMove('down'); }
+            if(e.code === 'Space') { keys.Space = false; throwBeer(); }
+        });
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        document.getElementById('btn-up').addEventListener('touchstart', (e) => { e.preventDefault(); handleMove('up'); });
+        document.getElementById('btn-down').addEventListener('touchstart', (e) => { e.preventDefault(); handleMove('down'); });
+        document.getElementById('btn-throw').addEventListener('touchstart', (e) => { e.preventDefault(); throwBeer(); });
+        
+        document.getElementById('btn-up').addEventListener('mousedown', (e) => { handleMove('up'); });
+        document.getElementById('btn-down').addEventListener('mousedown', (e) => { handleMove('down'); });
+        document.getElementById('btn-throw').addEventListener('mousedown', (e) => { throwBeer(); });
+    }
+
+    function startGame() {
+        state = {
+            status: 'PLAYING',
+            score: 0,
+            lives: 3,
+            playerLane: 0,
+            beers: [],
+            customers: [],
+            lastTime: performance.now(),
+            spawnTimer: 0,
+            spawnInterval: 2500,
+            baseCustomerSpeed: 40,
+            cooldown: 0
+        };
+        
+        updateUI();
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        requestAnimationFrame(gameLoop);
+    }
+
+    function loseLife() {
+        state.lives--;
+        updateUI();
+        
+        state.beers = [];
+        state.customers = [];
+
+        canvas.style.opacity = '0.5';
+        setTimeout(() => { canvas.style.opacity = '1'; }, 150);
+
+        if (state.lives <= 0) {
+            state.status = 'GAMEOVER';
+            finalScoreEl.innerText = state.score;
+            gameOverScreen.classList.remove('hidden');
+        }
+    }
+
+    function handleMove(direction) {
+        if (state.status !== 'PLAYING') return;
+        if (direction === 'up' && state.playerLane > 0) {
+            state.playerLane--;
+        } else if (direction === 'down' && state.playerLane < 3) {
+            state.playerLane++;
+        }
+    }
+
+    function throwBeer() {
+        if (state.status !== 'PLAYING' || state.cooldown > 0) return;
+        
+        state.beers.push({
+            x: BAR_END_X - 40,
+            lane: state.playerLane,
+            speed: 400 //velocidade do hotdog
+        });
+
+        state.cooldown = 0.2;
+    }
+
+    function spawnCustomer() {
+        const lane = Math.floor(Math.random() * 4);
+        const rand = Math.random();
+        let assetInfo, hp, scoreVal;
+        
+        if (rand < 0.05) {
+            assetInfo = { img: assets.porco.img, fallback: assets.porco.fallback };
+            hp = 3;
+            scoreVal = 30;
+        } else if (rand < 0.20) {
+            assetInfo = { img: assets.trevo.img, fallback: assets.trevo.fallback };
+            hp = 2;
+            scoreVal = 20;
+        } else {
+            const clienteSorteado = assets.clientes[Math.floor(Math.random() * assets.clientes.length)];
+            
+            assetInfo = { 
+                img: clienteSorteado.img, 
+                fallback: clienteSorteado.fallback 
+            };
+            hp = 1;
+            scoreVal = 10;
+        }
+        
+        const speedVar = Math.random() * 20;
+        
+        state.customers.push({
+            x: BAR_START_X,
+            lane: lane,
+            assetInfo: assetInfo,
+            speed: state.baseCustomerSpeed + speedVar,
+            hp: hp,
+            scoreVal: scoreVal
+        });
+    }
+
+    function updateUI() {
+        scoreEl.innerText = state.score;
+        livesEl.innerText = '❤️'.repeat(Math.max(0, state.lives));
+    }
+
+    function update(dt) {
+        if (state.status !== 'PLAYING') return;
+
+        if (state.cooldown > 0) {
+            state.cooldown -= dt;
+        }
+
+        state.spawnTimer += dt * 1000;
+        if (state.spawnTimer >= state.spawnInterval) {
+            spawnCustomer();
+            state.spawnTimer = 0;
+            
+            if (state.spawnInterval > 800) {
+                state.spawnInterval -= 20; 
+            }
+            state.baseCustomerSpeed += 0.5;
+        }
+
+        for (let i = state.beers.length - 1; i >= 0; i--) {
+            let beer = state.beers[i];
+            beer.x -= beer.speed * dt;
+
+            if (beer.x < BAR_START_X - 20) {
+                state.beers.splice(i, 1);
+                loseLife();
+                return;
+            }
+        }
+
+        for (let i = state.customers.length - 1; i >= 0; i--) {
+            let cust = state.customers[i];
+            cust.x += cust.speed * dt;
+
+            if (cust.x > BAR_END_X) {
+                state.customers.splice(i, 1);
+                loseLife();
+                return;
+            }
+        }
+
+        for (let i = state.beers.length - 1; i >= 0; i--) {
+            let beer = state.beers[i];
+            let hit = false;
+
+            for (let j = state.customers.length - 1; j >= 0; j--) {
+                let cust = state.customers[j];
+
+                if (beer.lane === cust.lane && beer.x <= cust.x + EMOJI_SIZE / 1.5) {
+                    state.beers.splice(i, 1);
+                    cust.hp--;
+                    
+                    if (cust.hp <= 0) {
+                        state.customers.splice(j, 1);
+                        state.score += cust.scoreVal;
+                    } else {
+                        cust.x -= 60; 
+                        if (cust.x < BAR_START_X) cust.x = BAR_START_X;
+                    }
+                    
+                    updateUI();
+                    hit = true;
+                    break;
+                }
+            }
+            if (hit) continue;
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        for (let i = 0; i < 4; i++) {
+            const y = LANES[i];
+            ctx.fillStyle = '#ff0055';
+            ctx.fillRect(BAR_START_X, y - 5, BAR_END_X - BAR_START_X + 60, 5);
+            ctx.fillStyle = '#8B008B'; 
+            ctx.fillRect(BAR_START_X, y, BAR_END_X - BAR_START_X + 60, 20);
+            ctx.fillStyle = '#4B0082';
+            ctx.fillRect(BAR_START_X + 10, y + 20, BAR_END_X - BAR_START_X + 50, 10);
+        }
+
+        ctx.font = `${EMOJI_SIZE}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+
+        const playerY = LANES[state.playerLane] + 5; 
+        if (assets.chef.img.complete && assets.chef.img.naturalHeight !== 0) {
+            ctx.drawImage(assets.chef.img, BAR_END_X + 40 - EMOJI_SIZE/2, playerY - EMOJI_SIZE, EMOJI_SIZE, EMOJI_SIZE);
+        } else {
+            ctx.fillText(assets.chef.fallback, BAR_END_X + 40, playerY);
+        }
+
+        for (let cust of state.customers) {
+            const custY = LANES[cust.lane] + 5;
+            if (cust.assetInfo.img.complete && cust.assetInfo.img.naturalHeight !== 0) {
+                ctx.drawImage(cust.assetInfo.img, cust.x - EMOJI_SIZE/2, custY - EMOJI_SIZE, EMOJI_SIZE, EMOJI_SIZE);
+            } else {
+                ctx.fillText(cust.assetInfo.fallback, cust.x, custY);
+            }
+        }
+
+        for (let beer of state.beers) {
+            const beerY = LANES[beer.lane];
+            const hotdogSize = 55;
+            if (assets.hotdog.img.complete && assets.hotdog.img.naturalHeight !== 0) {
+                ctx.drawImage(assets.hotdog.img, beer.x - hotdogSize/2, beerY - hotdogSize, hotdogSize, hotdogSize);
+            } else {
+                ctx.font = `35px Arial`;
+                ctx.fillText(assets.hotdog.fallback, beer.x, beerY);
+                ctx.font = `${EMOJI_SIZE}px Arial`; 
+            }
+        }
+    }
+
+    function gameLoop(timestamp) {
+        if (state.status === 'PLAYING') {
+            let dt = (timestamp - state.lastTime) / 1000;
+            if (dt > 0.1) dt = 0.1; 
+            state.lastTime = timestamp;
+
+            update(dt);
+            draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    initEvents();
+    draw(); 
+});
+</script>
